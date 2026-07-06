@@ -237,12 +237,12 @@ class SwinTower(nn.Module):
 class CrossAttentionFusion(nn.Module):
     def __init__(self, dim):
         super().__init__()
-        self.a2v = nn.MultiheadAttention(dim, 8, dropout=0.1, batch_first=True)
-        self.v2a = nn.MultiheadAttention(dim, 8, dropout=0.1, batch_first=True)
-        self.na = nn.LayerNorm(dim); self.nv = nn.LayerNorm(dim)
+        self.a2v_attn = nn.MultiheadAttention(dim, 8, dropout=0.1, batch_first=True)
+        self.v2a_attn = nn.MultiheadAttention(dim, 8, dropout=0.1, batch_first=True)
+        self.norm_a = nn.LayerNorm(dim); self.norm_v = nn.LayerNorm(dim)
     def forward(self, a, v):
-        af, _ = self.a2v(a, v, v); vf, _ = self.v2a(v, a, a)
-        return self.na(a + af), self.nv(v + vf)
+        af, _ = self.a2v_attn(a, v, v); vf, _ = self.v2a_attn(v, a, a)
+        return self.norm_a(a + af), self.norm_v(v + vf)
 
 class SwinDepressionModel(nn.Module):
     def __init__(self):
